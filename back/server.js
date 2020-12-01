@@ -5,8 +5,8 @@ const isImage = require('is-image');
 const { log } = require('./logger.js');
 
 //==========================CONSTS==========================//
-//const dir = "/home/demiler/Pictures"
-const dir = "/home/demiler/tests/gya/testimg"
+const dir = "/home/demiler/projects/gya/testimg"
+const configFile = "/home/demiler/projects/gya/testconf.json"
 const port = 8081
 log.setLog('client', true);
 log.setLog('db', true);
@@ -55,6 +55,8 @@ dataBase.change = path => {
 
 //==========================INIT==========================//
 log.me('Initializing');
+log.me('Readding config ' + configFile);
+let config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
 log.me('Readding default dir ' + dir);
 filenames = fs.readdirSync(dir);
@@ -97,13 +99,35 @@ server.on('connection', ws => {
     switch (data.type) {
       case 'reqFiles':
         sendAllFiles(ws); break;
+      case 'reqConf':
+        ws.say('config', config); break;
       case 'upload':
         uploadFile(data.data); break;
+      case 'upd-config':
+        updateConfig(data.data); break;
+      case 'upd-img':
+        updateImg(data.data); break;
     }
   });
 });
 
 //==============FUNCS================//
+const updateImg = path => {
+  config["source_image"] = path;
+  fs.writeFile(configFile, JSON.stringify(config), err => {
+    if (err)
+      log.error('Error: ' + err);
+  });
+}
+
+const updateConfig = (data) => {
+  config[data.name] = data.value;
+  fs.writeFile(configFile, JSON.stringify(config), err => {
+    if (err)
+      log.error('Error: ' + err);
+  });
+}
+
 const uploadFile = (file) => {
   const toWrite = file.data.split(',')[1];
   const name = dir + '/' + file.name;
