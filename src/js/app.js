@@ -51,6 +51,13 @@ class Explorer extends LitElement {
       this.requestUpdate();
     });
 
+    api.on('config', (conf) => {
+      this.buttons.forEach(button =>
+        button.value = conf[button.confname]
+      );
+      this.requestUpdate();
+    });
+
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
       this.addEventListener(eventName, e => {
         e.preventDefault()
@@ -82,6 +89,7 @@ class Explorer extends LitElement {
     ];
 
     setTimeout(() => api.send('reqFiles'), 100);
+    setTimeout(() => api.send('reqConf'), 100);
   }
 
   render() {
@@ -145,7 +153,7 @@ class Explorer extends LitElement {
         reader.readAsDataURL(files[i]);
         reader.onload = () => res(reader.result);
         reader.onerror = err => console.log('Error ', err);
-      }).then(data => api.send('upload', {name: files[i].name, data}));
+      }).then(data => api.send('upload', { name: files[i].name, data }));
     }
   }
 
