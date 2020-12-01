@@ -20,7 +20,7 @@ export const style = css`
   border: 3px dashed #434366;
   border-radius: 10px;
   background: #33333320;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,4 +79,38 @@ export const style = css`
   display: inline-block;
 }
 
+.conf-buttons {
+  display: flex;
+  flex: 1 1 0px;
+}
+
+.btn-conf {
+  flex-grow: 1;
+  outline: none;
+  border-radius: 5px;
+  padding: 5px 0;
+  border: none;
+  transition: .1s;
+  color: #eee;
+  margin: 2px;
+}
+
+.btn-conf:hover {
+  filter: brightness(1.2);
+}
+
+.btn-conf.false {
+  background-color: #555;
+}
+
+.btn-conf.true {
+  background-color: #8585d0;
+}
+
+.ctrl-container {
+  display: grid;
+  grid-template-rows: 40px 1fr;
+  height: 100%;
+  grid-gap: 50px;
+}
 `;
