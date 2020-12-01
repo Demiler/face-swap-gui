@@ -18,6 +18,7 @@ class Explorer extends LitElement {
     super();
     this.files = [];
     this.state = "waiting-for-files";
+    //this.state = "buttons";
 
     api.on('rebase', (files) => {
       this.files = files.map(file => {
@@ -67,6 +68,19 @@ class Explorer extends LitElement {
 
     this.addEventListener('drop', this.loadFile);
 
+    this.buttons = [
+      { label: "CPU",        confname: "cpu",         value: false },
+      { label: "CVCPU",      confname: "cvcpu",       value: false },
+      { label: "Watch",      confname: "watch",       value: false },
+      { label: "Noop",       confname: "noop",        value: false },
+      { label: "FPS",        confname: "fps",         value: false },
+      { label: "Flow",       confname: "flow",        value: false },
+      { label: "Relative",   confname: "relative",    value: false },
+      { label: "Adaptive",   confname: "adapt_scale", value: false },
+      { label: "Recording",  confname: "recording",   value: false },
+      { label: "Reoptimize", confname: "reoptimize",  value: false },
+    ];
+
     setTimeout(() => api.send('reqFiles'), 100);
   }
 
@@ -75,8 +89,31 @@ class Explorer extends LitElement {
       case "waiting-for-files":
         return this.renderLoading();
       case "display-files":
-        return this.renderFiles();
+        return this.renderControls();
+      case 'buttons':
+        return this.renderButtons();
     }
+  }
+
+  renderControls() {
+    return html`
+      <div class='ctrl-container'>
+        ${this.renderButtons()}
+        ${this.renderFiles()}
+      </div>
+    `;
+  }
+
+  renderButtons() {
+    return html`
+      <div class='conf-buttons'>
+        ${this.buttons.map(button => html`
+          <button class='btn-conf ${button.value}'
+           @click=${() => this.updateConfig(button)}
+           >${button.label}</button>
+        `)}
+      </div>
+    `;
   }
 
   renderLoading() {
@@ -89,7 +126,8 @@ class Explorer extends LitElement {
     return html`
       <div class="files-container">
         ${this.files.map(file => html`
-          <div class="file-wrap" @click=${this.chooseImg}>
+          <div class="file-wrap"
+            @click=${() => this.updateImage(file)}>
             <img src="${file.data}">
             <span>${file.basename}</span>
           </div>
@@ -111,7 +149,16 @@ class Explorer extends LitElement {
     }
   }
 
-  chooseImg(e) {
+  updateImage(img) {
+    api.send('upd-img', img.path);
+    console.log('updating image', img.basename);
+  }
+
+  updateConfig(button) {
+    button.value = !button.value;
+    api.send('upd-config', { name: button.confname, value: button.value });
+    console.log('updating config', button);
+    this.requestUpdate();
   }
 };
 
