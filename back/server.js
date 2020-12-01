@@ -6,14 +6,14 @@ const { log } = require('./logger.js');
 
 //==========================CONSTS==========================//
 //const dir = "/home/demiler/Pictures"
-const dir = "/home/demiler/contests/sem3/chmi/solveSLE/report/assets";
+const dir = "/home/demiler/tests/gya/testimg"
 const port = 8081
 log.setLog('client', true);
 log.setLog('db', true);
 //==========================DATA BASE==========================//
 let dataBase = new Map();
 global.db = dataBase;
-dataBase.addImg = path => {
+dataBase.addImg = (path, send = true) => {
   if (dataBase.has(path)) {
     log.do('db', 'ignored existing file' + path);
     return;
@@ -29,18 +29,27 @@ dataBase.addImg = path => {
   fs.readFile(path, 'base64', (err, img) => {
     if (err)
       log.error(err);
-    dataBase.set(path, img);
+
+    mime = "data:image/" + path.split('.').pop() + ";base64,";
+    dataBase.set(path, mime + img);
+    if (send)
+      sendFile(server.onlyClient, path);
   });
 };
 
 dataBase.change = path => {
-  let file = dataBase.get(path)
-  if (file === undefined)
+  if (!dataBase.has(path))
     log.err(path + "not found to be changed");
+  log.do('db', 'changing file ' + path);
+
   fs.readFile(path, 'base64', (err, img) => {
     if (err)
       log.error(err);
-    file = img;
+
+    mime = "data:image/" + path.split('.').pop() + ";base64,";
+    dataBase.set(path, mime + img);
+
+    sendChange(server.onlyClient, path);
   });
 }
 
@@ -54,7 +63,7 @@ filenames = filenames.filter(name =>
 );
 log.me('Files names filtered');
 
-filenames.forEach(name => dataBase.addImg(dir + '/' + name));
+filenames.forEach(name => dataBase.addImg(dir + '/' + name, false));
 log.me('Data base initialized');
 
 log.me('Starting watcher');
@@ -65,7 +74,11 @@ const watcher = chokidar.watch(dir, {
 });
 watcher.on('add', dataBase.addImg);
 watcher.on('change', dataBase.change);
-watcher.on('unlink', dataBase.delete);
+watcher.on('unlink', path => {
+  console.log('deleting: ', path);
+  dataBase.delete(path);
+  sendUnlink(server.onlyClient, path);
+});
 watcher.on('error', path => log.error('error with ' + path));
 
 log.me('Starting server at port ' + port);
@@ -73,15 +86,30 @@ const server = new WebSocket.Server({ port });
 
 server.on('connection', ws => {
   log.do('client', 'new client');
+  //if (server.onlyClient)
+    //server.onlyClient.say('kill');
+  server.onlyClient = ws;
   ws.say = (type, data) => ws.send(JSON.stringify({ type, data }));
 
   ws.on('message', (data) => {
-    log.do('client', 'message from client');
     data = JSON.parse(data);
+    log.do('client', 'message from client: ' + data.type);
+    switch (data.type) {
+      case 'reqFiles':
+        sendAllFiles(ws); break;
+      case 'upload':
+        uploadFile(data.data); break;
+    }
   });
 });
 
 //==============FUNCS================//
+const uploadFile = (file) => {
+  const toWrite = file.data.split(',')[1];
+  const name = dir + '/' + file.name;
+  fs.writeFile(name, toWrite, 'base64', err => server.onlyClient.say('error', 'upload'));
+}
+
 const sendAllFiles = ws => {
   ws.say("rebase", Array.from(dataBase.entries()));
 }
@@ -92,7 +120,7 @@ const sendFile = (ws, path) => {
 }
 
 const sendUnlink = (ws, path) => {
-  ws.say("unlink", {path, data});
+  ws.say("unlink", path);
 }
 
 const sendChange = (ws, path) => {
