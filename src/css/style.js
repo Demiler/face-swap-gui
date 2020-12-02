@@ -120,7 +120,7 @@ export const style = css`
   color: #eee;
 
   width: 130px;
-  height: 220px;
+  /*height: 220px;*/
   overflow: hidden;
   transition: .2s;
 
@@ -130,9 +130,11 @@ export const style = css`
 }
 
 .file-wrap img {
-  width: 100%;
+  width: 130px;
+  height: 130px;
   max-height: 80%;
   border-radius: 5px 5px 0 0;
+  object-fit: cover;
 }
 
 .file-wrap span {
