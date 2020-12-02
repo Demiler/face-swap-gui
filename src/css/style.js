@@ -1,6 +1,22 @@
 import { css } from 'lit-element'
 
 export const style = css`
+
+/* scroll bar and selection */
+::-webkit-scrollbar {
+    width: 6px;
+    background-color: #000;
+}
+ 
+::-webkit-scrollbar-track {
+    background-color: #334;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #232333;
+}
+
 :host {
   height: 100%;
   padding: 5px;
@@ -10,8 +26,46 @@ export const style = css`
   justify-content: center;
 }
 
-:host(.shadow) {
-  filter: brightness(.6);
+:host(.shadow)::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #000;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+}
+
+:host(.shadow)::after {
+  display: flex;
+  width: 50%;
+  height: 20%;
+  content: 'Drop files';
+  top: 40%;
+  left: 25%;
+  position: absolute;
+  font-size: 50px;
+  border: 2px dashed #fff;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  color: white;
+}
+
+:host(.unsupp)::before {
+    content: 'Unsupported file type';
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #803232ba;
+    width: 100%;
+    height: 100%;
+    font-size: 50px;
 }
 
 .btn-select-dir {
@@ -45,10 +99,14 @@ export const style = css`
 
 .files-container {
   display: flex;
-  height: 80%;
+  height: 95%;
 
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  overflow-x: auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .file-wrap:hover {
@@ -61,10 +119,14 @@ export const style = css`
   margin: 5px;
   color: #eee;
 
-  width: 15%;
-  height: 50%;
+  width: 130px;
+  height: 220px;
   overflow: hidden;
   transition: .2s;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .file-wrap img {
@@ -77,6 +139,7 @@ export const style = css`
   padding: 5px;
   word-break: break-all;
   display: inline-block;
+  margin-bottom: 5px;
 }
 
 .conf-buttons {
