@@ -147,7 +147,15 @@ class Explorer extends LitElement {
   loadFile(e) {
     this.classList.remove('shadow');
     let files = e.dataTransfer.files;
+    let timer = undefined;
     for (let i = 0; i < files.length; i++) {
+      if (!files[i].type.startsWith("image")) {
+        console.log(files[i].name, 'is not supported file type');
+        this.classList.add('unsupp');
+        if (!timer)
+          timer = setTimeout(() => this.classList.remove('unsupp'), 1000);
+        continue;
+      }
       new Promise((res, rej) => {
         const reader = new FileReader();
         reader.readAsDataURL(files[i]);
