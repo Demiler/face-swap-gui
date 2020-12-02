@@ -1,15 +1,16 @@
 {
-  "name": "",
+  "name": "face-swap-gui",
   "version": "1.0.0",
-  "description": "",
+  "description": "gui controls for another program",
   "main": "./src/index.js",
   "scripts": {
-    "build": "webpack --config webpack.prod.js && cp -r img assets build/",
+    "create": "npm run build && rm -rf app && mkdir app && cp -r config.json start ./build/ ./back app/",
+    "build": "webpack --config webpack.prod.js",
     "dev": "webpack-dev-server --config webpack.dev.js",
     "dev:public": "npm run dev -- --host 0.0.0.0 --public",
     "server": "nodemon --exec \"eslint ./server/server.js && NODE_ENV='dev' node --inspect ./server/server.js\""
   },
-  "author": "",
+  "author": "demiler",
   "license": "ISC",
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
