@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "\e[36mStarting server on localhost:8081\e[0m"
+node --inspect ./back/server.js
