@@ -3,15 +3,18 @@ In development!
 Installation:
 ```
 npm install
-npm run build
+npm run create
 ```
+It will create folder app where with comiled program.
 
 Usage:
-in file `back/server.js` change dir variable to match your picture directory and change configFile to your configuration file.
-```
-node back/server.js
-```
-Local server with applicaiton will start on localhost at port 8081
+In app folder. Use config.json to set dir with pictures and configFile to set your
+configuration file. Local server with applicaiton will start on localhost at port 8081
 ```
 localhost:8081
+```
+
+Run server as follow:
+```
+./start
 ```
