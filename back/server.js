@@ -2,6 +2,9 @@ const WebSocket = require('ws');
 const chokidar = require('chokidar');
 const fs = require('fs');
 const isImage = require('is-image');
+const serveStatic = require('serve-static');
+const http = require('http');
+const finalhandler = require('finalhandler')
 const { log } = require('./logger.js');
 
 //==========================CONSTS==========================//
@@ -10,6 +13,7 @@ const configFile = "/home/demiler/projects/gya/testconf.json"
 const port = 8081
 log.setLog('client', true);
 log.setLog('db', true);
+
 //==========================DATA BASE==========================//
 let dataBase = new Map();
 global.db = dataBase;
@@ -52,7 +56,13 @@ dataBase.change = path => {
     sendChange(server.onlyClient, path);
   });
 }
+//==========================HTTPSR==========================//
+const serve = serveStatic('../build', { index: ['index.html'] })
 
+const httpServ = http.createServer(function onRequest (req, res) {
+  serve(req, res, finalhandler(req, res))
+})
+httpServ.listen(process.env.PORT || 8081);
 //==========================INIT==========================//
 log.me('Initializing');
 log.me('Readding config ' + configFile);
@@ -84,7 +94,7 @@ watcher.on('unlink', path => {
 watcher.on('error', path => log.error('error with ' + path));
 
 log.me('Starting server at port ' + port);
-const server = new WebSocket.Server({ port });
+const server = new WebSocket.Server({ server: httpServ });
 
 server.on('connection', ws => {
   log.do('client', 'new client');
