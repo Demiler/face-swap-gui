@@ -6,10 +6,9 @@ const serveStatic = require('serve-static');
 const http = require('http');
 const finalhandler = require('finalhandler')
 const { log } = require('./logger.js');
+const cfg = require('../config.json');
 
 //==========================CONSTS==========================//
-const dir = "/home/demiler/projects/gya/testimg"
-const configFile = "/home/demiler/projects/gya/testconf.json"
 const port = 8081
 log.setLog('client', true);
 log.setLog('db', true);
@@ -62,24 +61,24 @@ const serve = serveStatic('../build', { index: ['index.html'] })
 const httpServ = http.createServer(function onRequest (req, res) {
   serve(req, res, finalhandler(req, res))
 })
-httpServ.listen(process.env.PORT || 8081);
+httpServ.listen(process.env.PORT || port);
 //==========================INIT==========================//
 log.me('Initializing');
-log.me('Readding config ' + configFile);
-let config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+log.me('Readding config ' + cfg.configFile);
+let config = JSON.parse(fs.readFileSync(cfg.configFile, 'utf8'));
 
-log.me('Readding default dir ' + dir);
-filenames = fs.readdirSync(dir);
+log.me('Readding default dir ' + cfg.dir);
+filenames = fs.readdirSync(cfg.dir);
 filenames = filenames.filter(name =>
-  !name.endsWith(".gif") && isImage(dir +'/'+ name)
+  !name.endsWith(".gif") && isImage(cfg.dir +'/'+ name)
 );
 log.me('Files names filtered');
 
-filenames.forEach(name => dataBase.addImg(dir + '/' + name, false));
+filenames.forEach(name => dataBase.addImg(cfg.dir + '/' + name, false));
 log.me('Data base initialized');
 
 log.me('Starting watcher');
-const watcher = chokidar.watch(dir, {
+const watcher = chokidar.watch(cfg.dir, {
   ignored: /^\./,
   persistent: true,
   depth: 0
@@ -124,7 +123,7 @@ server.on('connection', ws => {
 //==============FUNCS================//
 const updateImg = path => {
   config["source_image"] = path;
-  fs.writeFile(configFile, JSON.stringify(config), err => {
+  fs.writeFile(cfg.configFile, JSON.stringify(config, null, 4), err => {
     if (err)
       log.error('Error: ' + err);
   });
@@ -132,7 +131,7 @@ const updateImg = path => {
 
 const updateConfig = (data) => {
   config[data.name] = data.value;
-  fs.writeFile(configFile, JSON.stringify(config), err => {
+  fs.writeFile(cfg.configFile, JSON.stringify(config, null, 4), err => {
     if (err)
       log.error('Error: ' + err);
   });
@@ -140,7 +139,7 @@ const updateConfig = (data) => {
 
 const uploadFile = (file) => {
   const toWrite = file.data.split(',')[1];
-  const name = dir + '/' + file.name;
+  const name = cfg.dir + '/' + file.name;
   fs.writeFile(name, toWrite, 'base64', err => server.onlyClient.say('error', 'upload'));
 }
 
