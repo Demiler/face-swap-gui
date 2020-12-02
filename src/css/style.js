@@ -109,8 +109,12 @@ export const style = css`
   box-sizing: border-box;
 }
 
-.file-wrap:hover {
+.ctrl-container:not(.hider) .file-wrap:hover {
   transform: scale(1.2);
+}
+
+.ctrl-container.hider .file-wrap:hover {
+  cursor: no-drop;
 }
 
 .file-wrap {
@@ -127,6 +131,19 @@ export const style = css`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+}
+
+.files-container:not([hidden]) .file-wrap[hidden] {
+  display: none;
+}
+
+.files-container[hidden] .file-wrap[hidden] {
+  filter: grayscale(.8);
+}
+
+.file-wrap.active {
+  background-color: #8585d0;
 }
 
 .file-wrap img {
@@ -144,6 +161,22 @@ export const style = css`
   margin-bottom: 5px;
 }
 
+.file-wrap:not(.favorite):not(:hover) .btn-fav {
+  display: none;
+}
+
+.btn-fav {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  outline: none;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
 .conf-buttons {
   display: flex;
   flex: 1 1 0px;
@@ -151,31 +184,37 @@ export const style = css`
 
 .btn-conf {
   flex-grow: 1;
-  outline: none;
-  border-radius: 5px;
-  padding: 5px 0;
-  border: none;
-  transition: .1s;
-  color: #eee;
   margin: 2px;
 }
 
-.btn-conf:hover {
+.btn-push {
+  outline: none;
+  border-radius: 5px;
+  padding: 2px 5px;
+  border: none;
+  transition: .1s;
+  color: #eee;
+}
+
+.btn-push:hover {
   filter: brightness(1.2);
 }
 
-.btn-conf.false {
+.btn-push.false {
   background-color: #555;
 }
 
-.btn-conf.true {
+.btn-dump:active,
+.btn-push.true {
   background-color: #8585d0;
 }
 
 .ctrl-container {
   display: grid;
-  grid-template-rows: 40px 1fr;
+  grid-template-rows: 40px 20px 1fr;
   height: 100%;
-  grid-gap: 50px;
+  grid-gap: 10px;
+  width: 100%;
 }
+
 `;
