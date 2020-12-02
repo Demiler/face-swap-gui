@@ -6,13 +6,15 @@ const serveStatic = require('serve-static');
 const http = require('http');
 const finalhandler = require('finalhandler')
 const { log } = require('./logger.js');
+const { File } = require('./file.js');
 const cfg = require('../config.json');
 
 //==========================CONSTS==========================//
+const SAVE_PERIOD = 1000 * 60 * 5; //5 min save period
 const port = 8081
+const dbFile = "./db.cache";
 log.setLog('client', true);
 log.setLog('db', true);
-
 //==========================DATA BASE==========================//
 let dataBase = new Map();
 global.db = dataBase;
@@ -32,16 +34,21 @@ dataBase.addImg = (path, send = true) => {
   fs.readFile(path, 'base64', (err, img) => {
     if (err)
       log.error(err);
-
     mime = "data:image/" + path.split('.').pop() + ";base64,";
-    dataBase.set(path, mime + img);
+
+    let file = new File();
+    file.basename = path.split(/(\\|\/)/g).pop();
+    file.path = path;
+    file.data = mime + img;
+    dataBase.set(path, file);
     if (send)
       sendFile(server.onlyClient, path);
   });
 };
 
-dataBase.change = path => {
-  if (!dataBase.has(path))
+dataBase.change = (path, send = true) => {
+  let file = dataBase.get(path);
+  if (file === undefined)
     log.err(path + "not found to be changed");
   log.do('db', 'changing file ' + path);
 
@@ -50,9 +57,37 @@ dataBase.change = path => {
       log.error(err);
 
     mime = "data:image/" + path.split('.').pop() + ";base64,";
-    dataBase.set(path, mime + img);
+    file.data = mime + img;
+    dataBase.set(path, file);
 
-    sendChange(server.onlyClient, path);
+    if (send)
+      sendChange(server.onlyClient, path);
+  });
+}
+
+dataBase.save = () => {
+  log.do('db', 'Dumping database on disk');
+  let toWrite = [];
+  dataBase.forEach((file, path) => toWrite.push(file.lite()));
+  fs.writeFile(dbFile, JSON.stringify(toWrite), err => {
+    if (err)
+      log.error(err);
+    if (server.onlyClient.readyState === WebSocket.OPEN)
+      server.onlyClient.say('db-dumped')
+  });
+}
+
+dataBase.init = () => {
+  if (!fs.existsSync(dbFile))
+    return;
+  let saveDB = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
+  saveDB.forEach(saved => {
+    let file = new File();
+    if (fs.existsSync(saved.path)) {
+      file.fromLite(saved);
+      dataBase.set(saved.path, file);
+      dataBase.change(saved.path, false);
+    }
   });
 }
 //==========================HTTPSR==========================//
@@ -67,6 +102,9 @@ log.me('Initializing');
 log.me('Readding config ' + cfg.configFile);
 let config = JSON.parse(fs.readFileSync(cfg.configFile, 'utf8'));
 
+log.me('Initializing dataBase');
+dataBase.init();
+
 log.me('Readding default dir ' + cfg.dir);
 filenames = fs.readdirSync(cfg.dir);
 filenames = filenames.filter(name =>
@@ -76,6 +114,8 @@ log.me('Files names filtered');
 
 filenames.forEach(name => dataBase.addImg(cfg.dir + '/' + name, false));
 log.me('Data base initialized');
+
+global.db = dataBase;
 
 log.me('Starting watcher');
 const watcher = chokidar.watch(cfg.dir, {
@@ -95,6 +135,10 @@ watcher.on('error', path => log.error('error with ' + path));
 log.me('Starting server at port ' + port);
 const server = new WebSocket.Server({ server: httpServ });
 
+const saveInterval = setInterval(() => {
+  dataBase.save();
+}, SAVE_PERIOD);
+//==============SERVER================//
 server.on('connection', ws => {
   log.do('client', 'new client');
   //if (server.onlyClient)
@@ -116,6 +160,14 @@ server.on('connection', ws => {
         updateConfig(data.data); break;
       case 'upd-img':
         updateImg(data.data); break;
+      case 'toggle-hid':
+        dataBase.get(data.data.path).hidden = data.data.value;
+        break;
+      case 'toggle-fav':
+        dataBase.get(data.data.path).favorite = data.data.value;
+        break;
+      case 'dump-db':
+        dataBase.save(); break;
     }
   });
 });
