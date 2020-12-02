@@ -124,7 +124,7 @@ export const style = css`
   color: #eee;
 
   width: 130px;
-  /*height: 220px;*/
+  max-height: 200px;
   overflow: hidden;
   transition: .2s;
 
