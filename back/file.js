@@ -2,6 +2,7 @@ class File {
   constructor() {
     this.path = undefined;
     this.data = undefined;
+    this.mtime = undefined;
     this.basename = undefined;
     this.hidden = false;
     this.favorite = false;

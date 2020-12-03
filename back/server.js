@@ -38,6 +38,7 @@ dataBase.addImg = (path, send = true) => {
 
     let file = new File();
     file.basename = path.split(/(\\|\/)/g).pop();
+    file.mtime = fs.statSync(path).mtimeMs;
     file.path = path;
     file.data = mime + img;
     dataBase.set(path, file);
@@ -56,6 +57,7 @@ dataBase.change = (path, send = true) => {
     if (err)
       log.error(err);
 
+    file.mtime = fs.statSync(path).mtimeMs;
     mime = "data:image/" + path.split('.').pop() + ";base64,";
     file.data = mime + img;
     dataBase.set(path, file);
@@ -201,7 +203,7 @@ const sendAllFiles = ws => {
 
 const sendFile = (ws, path) => {
   let data = dataBase.get(path);
-  ws.say("new-file", {path, data});
+  ws.say("new-file", data);
 }
 
 const sendUnlink = (ws, path) => {
@@ -210,5 +212,5 @@ const sendUnlink = (ws, path) => {
 
 const sendChange = (ws, path) => {
   let data = dataBase.get(path);
-  ws.say("change", {path, data});
+  ws.say("change", data);
 }

@@ -80,6 +80,7 @@ export const style = css`
   box-sizing: border-box;
 }
 
+.ctrl-container:not(.hider) .file-wrap:focus-visible,
 .ctrl-container:not(.hider) .file-wrap:hover {
   transform: scale(1.2);
 }
@@ -103,6 +104,7 @@ export const style = css`
   flex-direction: column;
   justify-content: space-between;
   position: relative;
+  outline: none;
 }
 
 .files-container:not([hidden]) .file-wrap[hidden] {

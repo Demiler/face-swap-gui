@@ -17,7 +17,6 @@ class Hotkeys {
   }
 
   bind(key, func, lock = true) {
-    console.log('binding ', key);
     this.binded.set(key, { func, lock, locked: false });
   }
 

@@ -29,9 +29,11 @@ class Explorer extends LitElement {
     this.favonly = false;
     this.showhid = false;
     this.lastDump = Date.now();
+    this.sortBy = 'time';
 
     api.on('rebase', (db) => {
       this.files = db.map(data => data[1]);
+      this.sortFiles();
       this.state = "display-files";
     });
 
@@ -43,19 +45,13 @@ class Explorer extends LitElement {
     api.on('change', (changed) => {
       let file = this.files.find(file => file.path === changed.path);
       file.data = changed.data;
+      this.sortFiles();
       this.requestUpdate();
     });
 
     api.on('new-file', (file) => {
-      this.files.push({
-        hidden: false,
-        display: true,
-        favorite: false,
-        active: false,
-        path: file.path,
-        data: file.data,
-        basename: file.path.split(/(\\|\/)/g).pop()
-      });
+      this.files.push(file);
+      this.sortFiles();
       this.requestUpdate();
     });
 
@@ -79,7 +75,6 @@ class Explorer extends LitElement {
 
     api.on('db-dumped', () => {
       this.lastDump = Date.now();
-      console.log(this.lastDump);
     });
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -153,18 +148,18 @@ class Explorer extends LitElement {
       <div class="ctrl-container ${this.hider ? 'hider' : ''}">
         ${this.renderButtons()}
         <div class='tools-container'>
-          <button class='btn-push btn-hider ${this.hider}' 
+          <button class='btn-push btn-hider ${this.hider}'
             @click=${() => this.hider = !this.hider}>hider</button>
 
-          <button class='btn-push btn-showhid ${this.showhid}' 
+          <button class='btn-push btn-showhid ${this.showhid}'
           @click=${() => this.showhid = !this.showhid}>
             show hidden (${this.files.filter(file => this.isHidden(file)).length})
           </button>
 
-          <button class='btn-push btn-favorite ${this.favonly}' 
+          <button class='btn-push btn-favorite ${this.favonly}'
           @click=${() => this.favonly = !this.favonly}>favorite only</button>
 
-          <button class='btn-push btn-dump false' 
+          <button class='btn-push btn-dump false'
                   @click=${() => api.send('dump-db')}>
                   dump on disk (${this.dumpTime()})
           </button>
@@ -199,7 +194,10 @@ class Explorer extends LitElement {
           <div class="file-wrap ${file.active ? 'active' : ''}
           ${file.favorite ? 'favorite' : ''}"
            @click=${(e) => this.clickImage(e, file)}
+           @keydown=${(e) => this.keyboardSelect(e, file)}
+           @keyup=${(e) => this.keyboardSelect(e, file)}
            .hidden=${this.isHidden(file)}
+           tabindex="1"
            >
             <img src="${file.data}">
             <span>${file.basename}</span>
@@ -217,6 +215,7 @@ class Explorer extends LitElement {
   addToFav(img) {
     img.favorite = !img.favorite;
     api.send('toggle-fav', { path: img.path, value: img.favorite });
+    this.sortFiles();
     this.requestUpdate();
   }
 
@@ -241,7 +240,32 @@ class Explorer extends LitElement {
     this.requestUpdate();
   }
 
+  keyboardSelect(e, img) {
+    switch (e.key) {
+      case "Escape":
+        e.target.blur();
+        break;
+
+      case ' ':
+        e.preventDefault();
+        switch (e.type) {
+          case "keyup":
+            this.keyboardLocked = false;
+            e.target.blur();
+            break;
+          case "keydown":
+            if (this.keyboardLocked)
+              break;
+            this.keyboardLocked = true;
+            this.clickImage(e, img);
+            break;
+        }
+    }
+  }
+
   updateImage(img) {
+    if (img === this.activeFile)
+      return;
     if (this.activeFile)
       this.activeFile.active = false;
     this.activeFile = img;
@@ -278,6 +302,22 @@ class Explorer extends LitElement {
         reader.onerror = err => console.log('Error ', err);
       }).then(data => api.send('upload', { name: files[i].name, data }));
     }
+  }
+
+  sortFiles() {
+    this.files.sort((f1, f2) => {
+      if (f1.favorite && !f2.favorite) return -1;
+      if (!f1.favorite && f2.favorite) return 1;
+      if (this.sortBy === 'name') {
+        if (f1.basename > f2.basename) return 1;
+        if (f1.basename < f2.basename) return -1;
+      }
+      else if (this.sortBy === 'time') {
+        if (f1.mtime > f2.mtime) return -1;
+        if (f1.mtime < f2.mtime) return 1;
+      }
+      return 0;
+    });
   }
 
 };
