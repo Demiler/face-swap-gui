@@ -68,6 +68,20 @@ export const style = css`
   z-index: 1;
 }
 
+:host(.offline)::after {
+    content: 'Server offline';
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #893a3a;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+}
+
 .files-container {
   display: flex;
   height: 95%;

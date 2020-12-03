@@ -35,6 +35,8 @@ class Api {
         else {
           console.log('Im dead');
           clearInterval(this.reconnect);
+          if (this.handlers.has('ws://offline'))
+            this.handlers.get('ws://offline').forEach(handler => handler());
         }
       }, 1000);
     }

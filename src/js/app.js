@@ -30,6 +30,15 @@ class Explorer extends LitElement {
     this.showhid = false;
     this.lastDump = Date.now();
     this.sortBy = 'time';
+    this.api = api;
+
+    api.on('ws://online', () => {
+      this.classList.remove('offline');
+    });
+
+    api.on('ws://offline', () => {
+      this.classList.add('offline');
+    });
 
     api.on('rebase', (db) => {
       this.files = db.map(data => data[1]);
