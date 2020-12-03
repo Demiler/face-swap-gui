@@ -22,7 +22,8 @@ export const style = css`
   padding: 5px;
   display: flex;
   box-sizing: border-box;
-  place-content: center center;
+  justify-content: center;
+  align-items: center;
 }
 
 :host(.shadow)::before {
@@ -48,7 +49,8 @@ export const style = css`
   position: absolute;
   font-size: 50px;
   border: 2px dashed #fff;
-  place-content: center center;
+  justify-content: center;
+  align-items: center;
   border-radius: 10px;
   color: white;
   z-index: 2;
@@ -60,7 +62,8 @@ export const style = css`
   top: 0;
   left: 0;
   display: flex;
-  place-content: center center;
+  justify-content: center;
+  align-items: center;
   background-color: #803232ba;
   width: 100%;
   height: 100%;
