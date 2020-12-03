@@ -23,8 +23,7 @@ class Explorer extends LitElement {
     super();
     this.activeFile = undefined;
     this.files = [];
-    //this.state = "waiting-for-files";
-    this.state = "display-files";
+    this.state = "waiting-for-files";
     this.hider = false;
     this.favonly = false;
     this.showhid = false;
