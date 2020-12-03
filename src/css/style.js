@@ -36,6 +36,7 @@ export const style = css`
   width: 100%;
   height: 100%;
   opacity: 0.6;
+  z-index: 1;
 }
 
 :host(.shadow)::after {
@@ -52,20 +53,22 @@ export const style = css`
   align-items: center;
   border-radius: 10px;
   color: white;
+  z-index: 2;
 }
 
 :host(.unsupp)::before {
-    content: 'Unsupported file type';
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #803232ba;
-    width: 100%;
-    height: 100%;
-    font-size: 50px;
+  content: 'Unsupported file type';
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #803232ba;
+  width: 100%;
+  height: 100%;
+  font-size: 50px;
+  z-index: 1;
 }
 
 .btn-select-dir {
