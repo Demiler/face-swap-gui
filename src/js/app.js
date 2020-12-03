@@ -1,6 +1,7 @@
 import { LitElement, css, html } from 'lit-element'
 import { style } from '../css/style.js'
-import { api } from '../js/api.js'
+import { api } from './api.js'
+import { hotkeys } from './hotkeys.js'
 const { File } = require('../../back/file.js');
 
 class Explorer extends LitElement {
@@ -22,7 +23,8 @@ class Explorer extends LitElement {
     super();
     this.activeFile = undefined;
     this.files = [];
-    this.state = "waiting-for-files";
+    //this.state = "waiting-for-files";
+    this.state = "display-files";
     this.hider = false;
     this.favonly = false;
     this.showhid = false;
@@ -109,6 +111,18 @@ class Explorer extends LitElement {
       { label: "Recording",  confname: "recording",   value: false },
       { label: "Reoptimize", confname: "reoptimize",  value: false },
     ];
+    hotkeys.bind('1', () => this.updateConfig(this.buttons[0]));
+    hotkeys.bind('2', () => this.updateConfig(this.buttons[1]));
+    hotkeys.bind('3', () => this.updateConfig(this.buttons[2]));
+    hotkeys.bind('4', () => this.updateConfig(this.buttons[3]));
+    hotkeys.bind('5', () => this.updateConfig(this.buttons[4]));
+    hotkeys.bind('6', () => this.updateConfig(this.buttons[5]));
+    hotkeys.bind('7', () => this.updateConfig(this.buttons[6]));
+    hotkeys.bind('8', () => this.updateConfig(this.buttons[7]));
+    hotkeys.bind('9', () => this.updateConfig(this.buttons[8]));
+    hotkeys.bind('0', () => this.updateConfig(this.buttons[9]));
+    hotkeys.bind('s', () => this.showhid = !this.showhid);
+    hotkeys.bind('f', () => this.favonly = !this.favonly);
 
     setTimeout(() => api.send('reqFiles'), 100);
     setTimeout(() => api.send('reqConf'), 200);
@@ -140,7 +154,7 @@ class Explorer extends LitElement {
         ${this.renderButtons()}
         <div class='tools-container'>
           <button class='btn-push btn-hider ${this.hider}' 
-          @click=${() => this.hider = !this.hider}>hider</button>
+            @click=${() => this.hider = !this.hider}>hider</button>
 
           <button class='btn-push btn-showhid ${this.showhid}' 
           @click=${() => this.showhid = !this.showhid}>

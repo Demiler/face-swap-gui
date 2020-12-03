@@ -7,11 +7,11 @@ export const style = css`
     width: 6px;
     background-color: #000;
 }
- 
+
 ::-webkit-scrollbar-track {
     background-color: #334;
 }
- 
+
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #232333;
@@ -21,9 +21,8 @@ export const style = css`
   height: 100%;
   padding: 5px;
   display: flex;
-  align-items: center;
   box-sizing: border-box;
-  justify-content: center;
+  place-content: center center;
 }
 
 :host(.shadow)::before {
@@ -49,8 +48,7 @@ export const style = css`
   position: absolute;
   font-size: 50px;
   border: 2px dashed #fff;
-  justify-content: center;
-  align-items: center;
+  place-content: center center;
   border-radius: 10px;
   color: white;
   z-index: 2;
@@ -62,8 +60,7 @@ export const style = css`
   top: 0;
   left: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  place-content: center center;
   background-color: #803232ba;
   width: 100%;
   height: 100%;
@@ -71,41 +68,12 @@ export const style = css`
   z-index: 1;
 }
 
-.btn-select-dir {
-  width: 80%;
-  height: 30%;
-  border: 3px dashed #434366;
-  border-radius: 10px;
-  background: #33333320;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: .2s;
-
-  outline: none;
-}
-
-.btn-select-dir .text {
-  color: #eee;
-  font-size: 40px;
-  padding: 15px;
-  background-color: #575699;
-  border-radius: 10px;
-}
-
-
-.btn-select-dir:hover {
-  filter: brightness(1.2);
-  transform: scale(1.05);
-}
-
 .files-container {
   display: flex;
   height: 95%;
 
   flex-wrap: wrap;
-  justify-content: center;
+  place-content: flex-start center;
   width: 100%;
   overflow-x: auto;
   padding: 20px;
@@ -152,7 +120,6 @@ export const style = css`
 .file-wrap img {
   width: 130px;
   height: 130px;
-  max-height: 80%;
   border-radius: 5px 5px 0 0;
   object-fit: cover;
 }
@@ -180,16 +147,6 @@ export const style = css`
   padding: 0;
 }
 
-.conf-buttons {
-  display: flex;
-  flex: 1 1 0px;
-}
-
-.btn-conf {
-  flex-grow: 1;
-  margin: 2px;
-}
-
 .btn-push {
   outline: none;
   border-radius: 5px;
@@ -212,12 +169,36 @@ export const style = css`
   background-color: #8585d0;
 }
 
+.conf-buttons {
+  display: flex;
+  flex: 1 1 0px;
+  border-radius: 7px;
+  max-width: 530px;
+}
+
+.btn-conf {
+  flex-grow: 1;
+  margin: 0px;
+  border-radius: 0;
+  border-right: 1.5px solid grey;
+}
+
+.btn-conf:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+.btn-conf:last-child {
+  border-right: none;
+  border-radius: 0 5px 5px 0;
+}
+
 .ctrl-container {
   display: grid;
-  grid-template-rows: 40px 20px 1fr;
+  grid-template-rows: 20px 20px 1fr;
   height: 100%;
   grid-gap: 10px;
   width: 100%;
 }
+
 
 `;
