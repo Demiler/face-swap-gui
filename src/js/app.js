@@ -104,7 +104,7 @@ class Explorer extends LitElement {
 
     this.buttons = [
       { label: "CPU",        confname: "cpu",         value: false },
-      { label: "CVCPU",      confname: "cvcpu",       value: false },
+      //{ label: "CVCPU",      confname: "cvcpu",       value: false },
       { label: "Watch",      confname: "watch",       value: false },
       { label: "Noop",       confname: "noop",        value: false },
       { label: "FPS",        confname: "fps",         value: false },
@@ -113,6 +113,7 @@ class Explorer extends LitElement {
       { label: "Adaptive",   confname: "adapt_scale", value: false },
       { label: "Recording",  confname: "recording",   value: false },
       { label: "Reoptimize", confname: "reoptimize",  value: false },
+      { label: "Sides",      confname: "sides",       value: false },
     ];
     hotkeys.bind('1', () => this.updateConfig(this.buttons[0]));
     hotkeys.bind('2', () => this.updateConfig(this.buttons[1]));
@@ -207,7 +208,7 @@ class Explorer extends LitElement {
            .hidden=${this.isHidden(file)}
            tabindex="1"
            >
-            <img src="${file.data}">
+           <div class='img-wrap'><img src="${file.data}"></div>
             <span>${file.basename}</span>
             <button class="btn-fav" name="btn-fav"
             @click=${() => this.addToFav(file)}>⭐</button>

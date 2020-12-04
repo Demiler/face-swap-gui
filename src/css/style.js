@@ -136,11 +136,17 @@ export const style = css`
   background-color: #8585d0;
 }
 
+.file-wrap .img-wrap {
+  padding-top: 100%;
+  position: relative;
+}
+
 .file-wrap img {
-  width: 130px;
-  height: 130px;
-  border-radius: 5px 5px 0 0;
   object-fit: cover;
+  position: absolute;
+  inset: 0px;
+  width: 100%;
+  height: 100%;
 }
 
 .file-wrap span {
@@ -148,6 +154,7 @@ export const style = css`
   word-break: break-all;
   display: inline-block;
   margin-bottom: 5px;
+  font-size: small;
 }
 
 .file-wrap:not(.favorite):not(:hover) .btn-fav {
