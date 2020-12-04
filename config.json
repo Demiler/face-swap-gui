@@ -1,4 +1,5 @@
 {
   "dir": "/home/demiler/projects/gya/testimg",
-  "configFile": "/home/demiler/projects/gya/testconf.json"
+  "configFile": "/home/demiler/projects/gya/testconf.json",
+  "port": 8081
 }

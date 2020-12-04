@@ -34,7 +34,7 @@ class Logger {
   }
 
   error(msg) {
-    console.log('Error: ', msg);
+    console.log('Error:', msg);
   }
 }
 

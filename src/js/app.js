@@ -2,7 +2,8 @@ import { LitElement, css, html } from 'lit-element'
 import { style } from '../css/style.js'
 import { api } from './api.js'
 import { hotkeys } from './hotkeys.js'
-const { File } = require('../../back/file.js');
+const { File } = require('../../server/file.js');
+const { validateImage } = require('../../server/validateImage.js');
 
 class Explorer extends LitElement {
   static get styles() {
@@ -30,6 +31,7 @@ class Explorer extends LitElement {
     this.lastDump = Date.now();
     this.sortBy = 'time';
     this.api = api;
+    this.pendingFiles = new Map();
 
     api.on('ws://online', () => {
       this.classList.remove('offline');
@@ -53,6 +55,7 @@ class Explorer extends LitElement {
     api.on('change', (changed) => {
       let file = this.files.find(file => file.path === changed.path);
       file.data = changed.data;
+      file.mtime = changed.mtime;
       this.sortFiles();
       this.requestUpdate();
     });
@@ -61,6 +64,30 @@ class Explorer extends LitElement {
       this.files.push(file);
       this.sortFiles();
       this.requestUpdate();
+    });
+
+    api.on('sync-file', (res) => {
+      if (res.outcome !== 'ok') {
+        this.pendingFiles.delete(res.name);
+        return console.log('error: unable to upload file:', res.outcome);
+      }
+      
+      let data = this.pendingFiles.get(res.file.basename);
+      if (data === undefined) {
+        console.log('error: unable to sync file');
+        api.send('reqFiles');
+        return;
+      }
+      let nf = new File();
+      nf.data = data;
+      nf.path = res.file.path;
+      nf.mtime = res.file.mtime;
+      nf.basename = res.file.basename;
+      this.files.push(nf);
+      if (this.pendingFiles.size === 0)
+        this.sortFiles();
+      else
+        this.requestUpdate();
     });
 
     api.on('config', (conf) => {
@@ -287,7 +314,7 @@ class Explorer extends LitElement {
   updateConfig(button) {
     button.value = !button.value;
     api.send('upd-config', { name: button.confname, value: button.value });
-    console.log('updating config', button);
+    console.log('updating config', button.confname);
     this.requestUpdate();
   }
 
@@ -296,7 +323,7 @@ class Explorer extends LitElement {
     let files = e.dataTransfer.files;
     let timer = undefined;
     for (let i = 0; i < files.length; i++) {
-      if (!files[i].type.startsWith("image")) {
+      if (!validateImage(files[i].name)) {
         console.log(files[i].name, 'is not supported file type');
         this.classList.add('unsupp');
         if (!timer)
@@ -304,12 +331,18 @@ class Explorer extends LitElement {
         continue;
       }
 
+      if (this.files.some(file => file.basename === files[i].name))
+        continue;
+
       new Promise((res, rej) => {
         const reader = new FileReader();
         reader.readAsDataURL(files[i]);
         reader.onload = () => res(reader.result);
         reader.onerror = err => console.log('Error ', err);
-      }).then(data => api.send('upload', { name: files[i].name, data }));
+      }).then(data => {
+        api.send('upload', { name: files[i].name, data })
+        this.pendingFiles.set(files[i].name, data);
+      });
     }
   }
 

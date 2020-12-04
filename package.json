@@ -4,7 +4,7 @@
   "description": "gui controls for another program",
   "main": "./src/index.js",
   "scripts": {
-    "create": "npm run build && rm -rf app && mkdir app && cp -r config.json start ./build/ ./back app/",
+    "create": "npm run build && rm -rf app && mkdir app && cp -r config.json start ./build/ ./server app/",
     "build": "webpack --config webpack.prod.js && cp favicons/* build/",
     "dev": "webpack-dev-server --config webpack.dev.js",
     "dev:public": "npm run dev -- --host 0.0.0.0 --public",
