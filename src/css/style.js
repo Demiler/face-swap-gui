@@ -36,7 +36,7 @@ export const style = css`
   width: 100%;
   height: 100%;
   opacity: 0.6;
-  z-index: 1;
+  z-index: 10;
 }
 
 :host(.shadow)::after {
@@ -53,7 +53,7 @@ export const style = css`
   align-items: center;
   border-radius: 10px;
   color: white;
-  z-index: 2;
+  z-index: 11;
 }
 
 :host(.unsupp)::before {
@@ -68,21 +68,25 @@ export const style = css`
   width: 100%;
   height: 100%;
   font-size: 50px;
-  z-index: 1;
+  z-index: 10;
 }
 
-:host(.offline)::after {
-    content: 'Server offline';
-    display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #893a3a;
-    justify-content: center;
-    align-items: center;
-    font-size: 50px;
+#killed, #offline {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #893a3a;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  text-align: center;
+}
+
+#loading {
+  font-size: 50px;
 }
 
 .files-container {
@@ -100,6 +104,7 @@ export const style = css`
 .ctrl-container:not(.hider) .file-wrap:focus-visible,
 .ctrl-container:not(.hider) .file-wrap:hover {
   transform: scale(1.2);
+  z-index: 1;
 }
 
 .ctrl-container.hider .file-wrap:hover {
@@ -112,8 +117,8 @@ export const style = css`
   margin: 5px;
   color: #eee;
 
-  width: 130px;
-  max-height: 200px;
+  width: 150px;
+  max-height: 220px;
   overflow: hidden;
   transition: .2s;
 
@@ -180,6 +185,7 @@ export const style = css`
   border: none;
   transition: .1s;
   color: #eee;
+  font-size: 18px;
 }
 
 .btn-push:hover {
@@ -193,20 +199,21 @@ export const style = css`
 .btn-dump:active,
 .btn-push.true {
   background-color: #8585d0;
+  border-color: #a4a4f9;
 }
 
 .conf-buttons {
   display: flex;
   flex: 1 1 0px;
   border-radius: 7px;
-  max-width: 530px;
+  max-width: 800px;
 }
 
 .btn-conf {
   flex-grow: 1;
   margin: 0px;
   border-radius: 0;
-  border-right: 1.5px solid grey;
+  border-right: 2px solid grey;
 }
 
 .btn-conf:first-child {
@@ -220,7 +227,7 @@ export const style = css`
 
 .ctrl-container {
   display: grid;
-  grid-template-rows: 20px 20px 1fr;
+  grid-template-rows: 30px 30px 1fr;
   height: 100%;
   grid-gap: 10px;
   width: 100%;

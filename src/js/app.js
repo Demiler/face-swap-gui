@@ -34,11 +34,19 @@ class Explorer extends LitElement {
     this.pendingFiles = new Map();
 
     api.on('ws://online', () => {
-      this.classList.remove('offline');
+      this.state = "waiting-for-files";
+      api.send('reqFiles');
+      api.send('reqConf');
     });
 
     api.on('ws://offline', () => {
-      this.classList.add('offline');
+      this.state = "offline";
+    });
+
+    api.on('kill', () => {
+      this.state = "killed";
+      api.killed = true;
+      api.disconnect();
     });
 
     api.on('rebase', (db) => {
@@ -155,8 +163,6 @@ class Explorer extends LitElement {
     hotkeys.bind('s', () => this.showhid = !this.showhid);
     hotkeys.bind('f', () => this.favonly = !this.favonly);
 
-    setTimeout(() => api.send('reqFiles'), 100);
-    setTimeout(() => api.send('reqConf'), 200);
 
     const updater = setInterval(() => this.requestUpdate(), 60000);
   }
@@ -174,8 +180,10 @@ class Explorer extends LitElement {
         return this.renderLoading();
       case "display-files":
         return this.renderControls();
-      case 'buttons':
-        return this.renderButtons();
+      case 'offline':
+        return this.renderOffline();
+      case 'killed':
+        return this.renderKilled();
     }
   }
 
@@ -219,7 +227,22 @@ class Explorer extends LitElement {
 
   renderLoading() {
     return html`
-      <div class="loading">Loading</div>
+      <div id="loading">Loading</div>
+    `;
+  }
+
+  renderKilled() {
+    return html`
+      <div id='killed'>
+        This tab is inaccessible because
+        another was opened
+      </div>
+    `;
+  }
+
+  renderOffline() {
+    return html`
+      <div id="offline">Server offline</div>
     `;
   }
 

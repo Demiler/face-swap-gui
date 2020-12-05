@@ -11,21 +11,27 @@ class Api {
     this.send = (type, data) =>
       this.ws.send(JSON.stringify({ type, data }));
 
+    this.killed = false;
     this.conect();
   }
 
   conect() {
     this.ws = new WebSocket("ws://localhost:8081");
+    this.disconnect = () => this.ws.close();
 
     this.ws.onopen = () => {
       //console.clear();
       console.log('WebSocket is open now');
       this.tries = 0;
       clearInterval(this.reconnect);
+      if (this.handlers.has('ws://online'))
+        this.handlers.get('ws://online').forEach(handler => handler());
     }
 
     this.ws.onclose = () => {
       console.log('WebSocket is closed now');
+      if (this.killed) return;
+
       this.reconnect = setInterval(() => {
         if (this.tries < 3) {
           this.tries++;
@@ -49,7 +55,7 @@ class Api {
     this.ws.onmessage = (event) => {
       let data = JSON.parse(event.data);
       console.log('Got message type ' + data.type);
-      if (this.handlers.has(data.type)) 
+      if (this.handlers.has(data.type))
         this.handlers.get(data.type).forEach(handler => handler(data.data));
       else {
         console.log('Unknown type of event: ' + data.type);
